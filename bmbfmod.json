@@ -26,13 +26,19 @@
         {
             "type": "HookModLibrary",
             "installAction": {
-                "installLibraryFile": "libbeatsaber-hook_0_6_0.so"
+                "installLibraryFile": "libbeatsaber-hook_0_7_1.so"
             }
         },
         {
             "type": "HookModLibrary",
             "installAction": {
-                "installLibraryFile": "libcodegen_0_2_4.so"
+                "installLibraryFile": "libcodegen_0_2_6.so"
+            }
+        },
+		        {
+            "type": "HookModLibrary",
+            "installAction": {
+                "installLibraryFile": "libcustom-types_0_2_2.so"
             }
         }
     ]
