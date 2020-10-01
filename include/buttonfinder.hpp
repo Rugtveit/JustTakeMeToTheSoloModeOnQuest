@@ -1,13 +1,16 @@
 #include <string>
 #include "beatsaber-hook/shared/utils/typedefs.h"
+#include "codegen/include/UnityEngine/Resources.hpp"
+#include "codegen/include/UnityEngine/UI/Button.hpp"
 
 class ButtonFinder 
 {
     public: 
         std::string buttonName = "";
-        Il2CppObject* FindButton();
+        UnityEngine::UI::Button* GetButton();
+        static bool FindButton(float time, bool* foundButtonPtr, std::string buttonName);
         bool foundButton = false;
         bool pressedButton = false;
-    private:
-        bool* foundButtonPtr = &foundButton;
+        bool* foundButtonPtr = &foundButton;  
+        float waitingTime = 1.0f;
 };
