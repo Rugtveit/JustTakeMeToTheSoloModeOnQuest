@@ -31,7 +31,8 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := beatsaber-hook_0_7_1
 LOCAL_EXPORT_C_INCLUDES := extern/beatsaber-hook
 LOCAL_SRC_FILES := extern/libbeatsaber-hook_0_7_1.so
-LOCAL_EXPORT_C_FLAGS := -DNEED_UNSAFE_CSHARP
+LOCAL_EXPORT_C_FLAGS := -DNEED_UNSAFE_CSHARP 
+LOCAL_CPP_FEATURES := exceptions
 include $(PREBUILT_SHARED_LIBRARY)
 
 # Creating prebuilt for dependency: codegen - version: 0.2.4
@@ -60,6 +61,6 @@ LOCAL_SHARED_LIBRARIES += beatsaber-hook_0_7_1
 LOCAL_SHARED_LIBRARIES += codegen_0_2_6
 LOCAL_SHARED_LIBRARIES += custom-types_0_2_2
 LOCAL_LDLIBS += -llog
-LOCAL_CFLAGS += -I'extern/libil2cpp/il2cpp/libil2cpp/' -isystem 'extern' -'extern/codegen' -I'./shared' -I'./extern' -I'./extern/codegen/include'
+LOCAL_CFLAGS += -isystem 'extern/libil2cpp/il2cpp/libil2cpp' -isystem 'extern' -'extern/codegen' -I'./shared' -I'./extern' -I'./extern/codegen/include'
 LOCAL_C_INCLUDES += ./include ./src
 include $(BUILD_SHARED_LIBRARY)
