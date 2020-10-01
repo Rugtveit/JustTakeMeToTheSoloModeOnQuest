@@ -1,8 +1,4 @@
 #include "../include/main.hpp"
-#include "../extern/codegen/include/GlobalNamespace/LevelFilteringNavigationController.hpp"
-#include "../extern/codegen/include/GlobalNamespace/TabBarViewController.hpp"
-
-
 
 static ModInfo modInfo;
 
@@ -11,89 +7,85 @@ const Logger& getLogger() {
   return logger;
 }
 
-std::string scenesNames[3] = {"ShaderWarmup", "HealthWarning", "MenuViewControllers"};
-
-
-ButtonFinder continueButton;
-ButtonFinder soloModeButton;
-int tabSelect = 1;
-float waitingTime = 1.5f;
-bool timerDone = false;
-bool* timerDonePtr = &timerDone;
-bool tabSelected = false;
-
-void StartTimer(float time, bool* finishedTimer);
-void SelectTab(int tab);
-
-DECLARE_CLASS_CODEGEN(Il2CppNamespace, ButtonChecker, UnityEngine::MonoBehaviour,
+DECLARE_CLASS_CODEGEN(Il2CppNamespace, WaitUntilType, UnityEngine::MonoBehaviour,
     DECLARE_METHOD(void, Update);
-    REGISTER_FUNCTION(ButtonChecker,
+    REGISTER_FUNCTION(WaitUntilType,
         REGISTER_METHOD(Update);
     )
 )
 
-
-void Il2CppNamespace::ButtonChecker::Update() 
-{
-  if(!continueButton.pressedButton && continueButton.foundButton)
-  {
-    UnityEngine::UI::Button* continueBtn = continueButton.GetButton();
-    continueBtn->Press();
-    continueButton.pressedButton = true;
-  }
-
-  if(!soloModeButton.pressedButton && soloModeButton.foundButton)
-  {
-    UnityEngine::UI::Button* soloModeBtn = soloModeButton.GetButton();
-    soloModeBtn->Press();
-    if(tabSelect >= 0 && tabSelect <= 2)
-    {
-      std::thread timer1(StartTimer, waitingTime, timerDonePtr);
-      timer1.detach();
-    }
-    soloModeButton.pressedButton = true;
-  }
-
-  if(!tabSelected & timerDone)
-  {
-    SelectTab(tabSelect);
-    tabSelected = true;
-  }
-}
-
+ButtonFinder buttonFinder1;
+ButtonFinder buttonFinder2;
+TabSelector tabSelector; 
+float waitingTime = 1.5f;
 
 MAKE_HOOK_OFFSETLESS(ActiveSceneChanged, void, Scene prevScene, Scene nextScene)
 {
   ActiveSceneChanged(prevScene, nextScene);
-  std::string sceneName = Utils::GetSceneName(nextScene);
-  if(sceneName == "") return; 
+  std::string nextSceneName = Utils::GetSceneName(nextScene);
+  if(nextSceneName == "") return; 
   
-  // Scene ShaderWarmup 
-  // Adding customtype CoroutineType to recreate the coroutine.
-  if(sceneName == scenesNames[0])
+  if(nextSceneName == "ShaderWarmup")
   {
-    auto* gameObject =     UnityEngine::GameObject::New_ctor(il2cpp_utils::createcsstr("ButtonCheckerGO"));
-    auto* component =      RET_V_UNLESS(il2cpp_utils::RunMethod(gameObject, "AddComponent", typeof(Il2CppNamespace::ButtonChecker*)));
+    auto* gameObject =  UnityEngine::GameObject::New_ctor(il2cpp_utils::createcsstr("WaitUntilTypeGO"));
+    auto* component =   gameObject->AddComponent<Il2CppNamespace::WaitUntilType*>();
     UnityEngine::Object::DontDestroyOnLoad(gameObject);
   }
 
-  if(sceneName == scenesNames[1])
+  if(nextSceneName == "HealthWarning")
   {
-    continueButton.buttonName = "Continue";
-    continueButton.waitingTime = waitingTime;
-    std::thread buttonFind1(continueButton.FindButton, continueButton.waitingTime, continueButton.foundButtonPtr, continueButton.buttonName);
-    buttonFind1.detach();
+    buttonFinder1.buttonName = "Continue";
+    buttonFinder1.waitingTime = waitingTime;
+    std::thread findContinueBtnThread(buttonFinder1.FindButton, buttonFinder1.waitingTime, buttonFinder1.foundButtonPtr, buttonFinder1.buttonName);
+    findContinueBtnThread.detach();
   }
 
-  if(sceneName == scenesNames[2])
+  if(nextSceneName == "MenuViewControllers")
   {
-    soloModeButton.buttonName = "SoloFreePlayButton";
-    soloModeButton.waitingTime = waitingTime;
-    std::thread buttonFind2(soloModeButton.FindButton, soloModeButton.waitingTime, soloModeButton.foundButtonPtr, soloModeButton.buttonName);
-    buttonFind2.detach();
+    buttonFinder2.buttonName = "SoloFreePlayButton";
+    buttonFinder2.waitingTime = waitingTime;
+    std::thread findSoloBtnThread(buttonFinder2.FindButton, buttonFinder2.waitingTime, buttonFinder2.foundButtonPtr, buttonFinder2.buttonName);
+    findSoloBtnThread.detach();
   }
    
 }
+
+
+void StartTimer(float time, bool* finishedTimer)
+{
+  std::this_thread::sleep_for(std::chrono::duration<float>(time));
+  *finishedTimer = true; 
+}
+
+void Il2CppNamespace::WaitUntilType::Update() 
+{
+  if(!buttonFinder1.pressedButton && buttonFinder1.foundButton)
+  {
+    UnityEngine::UI::Button* continueBtn = buttonFinder1.GetButton();
+    continueBtn->Press();
+    buttonFinder1.pressedButton = true;
+  }
+
+  if(!buttonFinder2.pressedButton && buttonFinder2.foundButton)
+  {
+    UnityEngine::UI::Button* soloModeBtn = buttonFinder2.GetButton();
+    soloModeBtn->Press();
+    if(tabSelector.tab >= 0 && tabSelector.tab <= 2)
+    {
+      tabSelector.waitTime = waitingTime;
+      std::thread waitThread(StartTimer, tabSelector.waitTime, tabSelector.waitDonePtr);
+      waitThread.detach();
+    }
+    buttonFinder2.pressedButton = true;
+  }
+
+  if(!tabSelector.tabSelected & tabSelector.waitDone)
+  {
+    tabSelector.SelectTab();
+    tabSelector.tabSelected = true;
+  }
+}
+
 
 extern "C" void setup(ModInfo& info) 
 {
@@ -106,24 +98,6 @@ extern "C" void setup(ModInfo& info)
 
 extern "C" void load() 
 {
-  custom_types::Register::RegisterType<Il2CppNamespace::ButtonChecker>();
+  custom_types::Register::RegisterType<Il2CppNamespace::WaitUntilType>();
   INSTALL_HOOK_OFFSETLESS(ActiveSceneChanged, il2cpp_utils::FindMethodUnsafe("UnityEngine.SceneManagement", "SceneManager", "Internal_ActiveSceneChanged", 2));
-}
-
-void StartTimer(float time, bool* finishedTimer)
-{
-  std::this_thread::sleep_for(std::chrono::duration<float>(time));
-  *finishedTimer = true; 
-}
-
-void SelectTab(int tab)
-{
-  Array<GlobalNamespace::LevelFilteringNavigationController*>* levelFilterNavController = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::LevelFilteringNavigationController*>();
-  GlobalNamespace::LevelFilteringNavigationController* levelFilter = levelFilterNavController->values[0];
-  GlobalNamespace::TabBarViewController* tabBar = levelFilter->tabBarViewController;
-  if(tabBar != nullptr)
-  {
-    tabBar->SelectItem(tab);
-    levelFilter->SwitchToPlaylists();
-  }
 }

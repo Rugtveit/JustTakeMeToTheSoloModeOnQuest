@@ -6,11 +6,15 @@
 class ButtonFinder 
 {
     public: 
-        std::string buttonName = "";
-        UnityEngine::UI::Button* GetButton();
-        static bool FindButton(float time, bool* foundButtonPtr, std::string buttonName);
-        bool foundButton = false;
-        bool pressedButton = false;
-        bool* foundButtonPtr = &foundButton;  
-        float waitingTime = 1.0f;
+        std::string buttonName  = "";
+        bool foundButton        = false;
+        bool pressedButton      = false;
+        bool* foundButtonPtr    = &foundButton;
+        float waitingTime       = 1.0f;
+
+        bool                        PressButton(); 
+        static bool                 FindButton(float time, bool* foundButtonPtr, std::string buttonName);
+        UnityEngine::UI::Button*    GetButton();
+        
+        
 };
