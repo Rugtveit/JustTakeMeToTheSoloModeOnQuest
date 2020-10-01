@@ -1,13 +1,5 @@
 #include "../include/main.hpp"
-#include "../include/utils.hpp"
-#include "../extern/custom-types/shared/register.hpp"
-#include "../extern/custom-types/shared/macros.hpp"
-#include "../extern/custom-types/shared/logging.hpp"
-#include "../extern/custom-types/shared/types.hpp"
-#include "../extern/codegen/include/UnityEngine/GameObject.hpp"
-#include "../extern/codegen/include/UnityEngine/MonoBehaviour.hpp"
-#include <thread>
-#include <chrono>
+
 
 
 static ModInfo modInfo;
@@ -20,7 +12,7 @@ const Logger& getLogger() {
 std::string scenesNames[3] = {"ShaderWarmup", "HealthWarning", "MenuViewControllers"};
 
 
-
+ButtonFinder continueButton;
 
 DECLARE_CLASS_CODEGEN(Il2CppNamespace, ButtonChecker, UnityEngine::MonoBehaviour,
     DECLARE_METHOD(void, Update);
@@ -32,7 +24,12 @@ DECLARE_CLASS_CODEGEN(Il2CppNamespace, ButtonChecker, UnityEngine::MonoBehaviour
 
 void Il2CppNamespace::ButtonChecker::Update() 
 {
-
+  if(!continueButton.pressedButton && continueButton.foundButton)
+  {
+    UnityEngine::UI::Button* continueBtn = continueButton.GetButton();
+    continueBtn->Press();
+    continueButton.pressedButton = true;
+  }
 }
 
 
@@ -50,6 +47,14 @@ MAKE_HOOK_OFFSETLESS(ActiveSceneChanged, void, Scene prevScene, Scene nextScene)
      auto* component =      RET_V_UNLESS(il2cpp_utils::RunMethod(gameObject, "AddComponent", typeof(Il2CppNamespace::ButtonChecker*)));
      UnityEngine::Object::DontDestroyOnLoad(gameObject);
    }
+
+   if(sceneName == scenesNames[1])
+   {
+     continueButton.buttonName = "Continue";
+     std::thread buttonFind1(continueButton.FindButton, continueButton.waitingTime, continueButton.foundButtonPtr, continueButton.buttonName);
+     buttonFind1.detach();
+   }
+   
 
 
 }

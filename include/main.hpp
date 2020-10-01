@@ -4,3 +4,13 @@
 #include "beatsaber-hook/shared/utils/il2cpp-utils.hpp" 
 #include "beatsaber-hook/shared/utils/typedefs.h"
 #include "modloader/shared/modloader.hpp"
+#include "../include/utils.hpp"
+#include "../extern/custom-types/shared/register.hpp"
+#include "../extern/custom-types/shared/macros.hpp"
+#include "../extern/custom-types/shared/logging.hpp"
+#include "../extern/custom-types/shared/types.hpp"
+#include "../extern/codegen/include/UnityEngine/GameObject.hpp"
+#include "../extern/codegen/include/UnityEngine/MonoBehaviour.hpp"
+#include <thread>
+#include <chrono>
+#include "buttonfinder.hpp"
