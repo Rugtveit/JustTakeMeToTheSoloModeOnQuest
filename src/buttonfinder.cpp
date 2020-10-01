@@ -38,3 +38,4 @@ bool ButtonFinder::FindButton(float time, bool* boolPtr, std::string buttonName)
 
     return false;
 }
+

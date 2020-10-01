@@ -12,7 +12,7 @@ class ButtonFinder
         bool* foundButtonPtr    = &foundButton;
         float waitingTime       = 1.0f;
 
-        bool                        PressButton(); 
+        bool                        ReadyToPress(){ return (!pressedButton && foundButton); } 
         static bool                 FindButton(float time, bool* foundButtonPtr, std::string buttonName);
         UnityEngine::UI::Button*    GetButton();
         

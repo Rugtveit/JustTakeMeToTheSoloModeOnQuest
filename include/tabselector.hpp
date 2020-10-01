@@ -12,4 +12,6 @@ class TabSelector
         bool    tabSelected = false;
 
         void    SelectTab();
+        bool    ReadyToSelect(){ return (!tabSelected && waitDone); }
+        bool    IsValidTab(){ return (tab >= 0 && tab <= 2); }
 };

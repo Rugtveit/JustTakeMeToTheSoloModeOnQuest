@@ -14,8 +14,8 @@ DECLARE_CLASS_CODEGEN(Il2CppNamespace, WaitUntilType, UnityEngine::MonoBehaviour
     )
 )
 
-ButtonFinder buttonFinder1;
-ButtonFinder buttonFinder2;
+ButtonFinder buttonFinder1; // Continue button finder
+ButtonFinder buttonFinder2; // SoloMode button finder
 TabSelector tabSelector; 
 float waitingTime = 1.5f;
 
@@ -50,7 +50,6 @@ MAKE_HOOK_OFFSETLESS(ActiveSceneChanged, void, Scene prevScene, Scene nextScene)
    
 }
 
-
 void StartTimer(float time, bool* finishedTimer)
 {
   std::this_thread::sleep_for(std::chrono::duration<float>(time));
@@ -59,18 +58,19 @@ void StartTimer(float time, bool* finishedTimer)
 
 void Il2CppNamespace::WaitUntilType::Update() 
 {
-  if(!buttonFinder1.pressedButton && buttonFinder1.foundButton)
+  if(buttonFinder1.ReadyToPress())
   {
     UnityEngine::UI::Button* continueBtn = buttonFinder1.GetButton();
     continueBtn->Press();
     buttonFinder1.pressedButton = true;
   }
 
-  if(!buttonFinder2.pressedButton && buttonFinder2.foundButton)
+  if(buttonFinder2.ReadyToPress())
   {
     UnityEngine::UI::Button* soloModeBtn = buttonFinder2.GetButton();
     soloModeBtn->Press();
-    if(tabSelector.tab >= 0 && tabSelector.tab <= 2)
+    tabSelector.tab = 1;
+    if(tabSelector.IsValidTab())
     {
       tabSelector.waitTime = waitingTime;
       std::thread waitThread(StartTimer, tabSelector.waitTime, tabSelector.waitDonePtr);
@@ -79,7 +79,7 @@ void Il2CppNamespace::WaitUntilType::Update()
     buttonFinder2.pressedButton = true;
   }
 
-  if(!tabSelector.tabSelected & tabSelector.waitDone)
+  if(tabSelector.ReadyToSelect())
   {
     tabSelector.SelectTab();
     tabSelector.tabSelected = true;
