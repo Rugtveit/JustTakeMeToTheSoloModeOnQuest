@@ -14,3 +14,4 @@
 #include <chrono>
 #include "buttonfinder.hpp"
 #include "tabselector.hpp"
+#include "config.hpp"

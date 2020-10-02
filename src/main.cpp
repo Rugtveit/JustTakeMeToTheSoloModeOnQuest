@@ -1,6 +1,8 @@
 #include "../include/main.hpp"
 
 static ModInfo modInfo;
+ModConfig::Config_t ModConfig::Config;
+
 
 const Logger& getLogger() {
   static const Logger& logger(modInfo);
@@ -18,18 +20,16 @@ DECLARE_CLASS_CODEGEN(Il2CppNamespace, WaitUntilType, UnityEngine::MonoBehaviour
 ButtonFinder buttonFinder1; // Continue button
 ButtonFinder buttonFinder2; // SoloMode button 
 TabSelector tabSelector; 
-float waitingTime = 1.5f;
-
 void Initialize()
 {
   buttonFinder1.buttonName = "Continue";
-  buttonFinder1.waitingTime = waitingTime;
+  buttonFinder1.waitingTime = ModConfig::Config.wait + 1.0f; // Adding 1 second delay because of other mods to make sure they get loaded
 
   buttonFinder2.buttonName = "SoloFreePlayButton";
-  buttonFinder2.waitingTime = waitingTime;
+  buttonFinder2.waitingTime = ModConfig::Config.wait;
 
-  tabSelector.tab = 2;
-  tabSelector.waitTime = waitingTime;
+  tabSelector.tab = ModConfig::Config.selectTab;
+  tabSelector.waitTime = ModConfig::Config.wait;
 }
 
 std::string GetSceneName(Scene scene);
@@ -102,6 +102,7 @@ extern "C" void setup(ModInfo& info)
     info.id = "JustTakeMeToTheSoloMode";
     info.version = "0.1.0";
     modInfo = info;
+    ModConfig::modInfo = modInfo;
     getLogger().info(info.version);
     getLogger().info(info.id);
 }
@@ -109,6 +110,7 @@ extern "C" void setup(ModInfo& info)
 extern "C" void load() 
 {
   Initialize();
+  if(!ModConfig::loadConfig())ModConfig::saveConfig();
   custom_types::Register::RegisterType<Il2CppNamespace::WaitUntilType>();
   INSTALL_HOOK_OFFSETLESS(ActiveSceneChanged, il2cpp_utils::FindMethodUnsafe("UnityEngine.SceneManagement", "SceneManager", "Internal_ActiveSceneChanged", 2));
 }
