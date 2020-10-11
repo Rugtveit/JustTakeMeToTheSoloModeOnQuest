@@ -4,9 +4,8 @@
     "author": "Rugtveit",
     "description": [
         
-        "I'm lazy",
-        
-        "I will fix this later I promise."
+        "Port of JustTakeMeToTheSoloMode(PC) made by nalulululuna",
+	"Ported by Rugtveit!"
         
     ],
     "category": "Gameplay",
@@ -38,7 +37,7 @@
 		        {
             "type": "HookModLibrary",
             "installAction": {
-                "installLibraryFile": "libcustom-types_0_2_2.so"
+                "installLibraryFile": "libcustom-types.so"
             }
         }
     ]

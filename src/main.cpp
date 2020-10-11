@@ -9,13 +9,16 @@ const Logger& getLogger() {
   return logger;
 }
 
+
 // Declaring CustomType codegen class
 DECLARE_CLASS_CODEGEN(Il2CppNamespace, WaitUntilType, UnityEngine::MonoBehaviour,
-    DECLARE_METHOD(void, Update);
+    DECLARE_OVERRIDE_METHOD(void, Update, il2cpp_utils::FindMethodUnsafe("UnityEngine", "MonoBehaviour", "Update", 0));
     REGISTER_FUNCTION(WaitUntilType,
         REGISTER_METHOD(Update);
     )
 )
+
+DEFINE_CLASS(Il2CppNamespace::WaitUntilType);
 
 ButtonFinder buttonFinder1; // Continue button
 ButtonFinder buttonFinder2; // SoloMode button 
@@ -34,6 +37,8 @@ void Initialize()
 
 std::string GetSceneName(Scene scene);
 
+UnityEngine::GameObject* waitUntilGO = nullptr;
+
 MAKE_HOOK_OFFSETLESS(ActiveSceneChanged, void, Scene prevScene, Scene nextScene)
 {
   ActiveSceneChanged(prevScene, nextScene);
@@ -42,7 +47,7 @@ MAKE_HOOK_OFFSETLESS(ActiveSceneChanged, void, Scene prevScene, Scene nextScene)
   
   if(nextSceneName == "ShaderWarmup")
   {
-    UnityEngine::GameObject* waitUntilGO =  UnityEngine::GameObject::New_ctor(il2cpp_utils::createcsstr("WaitUntilTypeGO"));
+    waitUntilGO =  UnityEngine::GameObject::New_ctor(il2cpp_utils::createcsstr("WaitUntilTypeGO"));
     waitUntilGO->AddComponent<Il2CppNamespace::WaitUntilType*>();
     UnityEngine::Object::DontDestroyOnLoad(waitUntilGO);
   }
@@ -85,7 +90,7 @@ void Il2CppNamespace::WaitUntilType::Update()
     {
       std::thread waitThread(StartTimer, tabSelector.waitTime, tabSelector.waitDonePtr);
       waitThread.detach();
-    }
+    } else UnityEngine::GameObject::Destroy(waitUntilGO);
     
     buttonFinder2.pressedButton = true;
   }
@@ -94,6 +99,7 @@ void Il2CppNamespace::WaitUntilType::Update()
   {
     tabSelector.SelectTab();
     tabSelector.tabSelected = true;
+    UnityEngine::GameObject::Destroy(waitUntilGO);
   }
 }
 
