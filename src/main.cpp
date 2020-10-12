@@ -12,7 +12,7 @@ const Logger& getLogger() {
 
 // Declaring CustomType codegen class
 DECLARE_CLASS_CODEGEN(Il2CppNamespace, WaitUntilType, UnityEngine::MonoBehaviour,
-    DECLARE_OVERRIDE_METHOD(void, Update, il2cpp_utils::FindMethodUnsafe("UnityEngine", "MonoBehaviour", "Update", 0));
+    DECLARE_METHOD(void, Update);
     REGISTER_FUNCTION(WaitUntilType,
         REGISTER_METHOD(Update);
     )
@@ -116,6 +116,7 @@ extern "C" void setup(ModInfo& info)
 extern "C" void load() 
 {
   Initialize();
+  il2cpp_functions::Init();
   if(!ModConfig::loadConfig())ModConfig::saveConfig();
   custom_types::Register::RegisterType<Il2CppNamespace::WaitUntilType>();
   INSTALL_HOOK_OFFSETLESS(ActiveSceneChanged, il2cpp_utils::FindMethodUnsafe("UnityEngine.SceneManagement", "SceneManager", "Internal_ActiveSceneChanged", 2));
